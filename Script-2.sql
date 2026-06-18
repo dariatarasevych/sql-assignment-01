@@ -1,3 +1,4 @@
+--створення таблиць для Бібліотеки
 create table genres(
 	genre_id serial primary key,
 	genre_name varchar(255) not null
@@ -37,11 +38,11 @@ create table loan_jornal (
 
 --Використала Gemini, щоб написати код для генерації даних в таблицях
 
--- 2. жанри
+-- 1. жанри
 INSERT INTO genres (genre_name) VALUES 
 ('Fantasy'), ('Crime'), ('Romance'), ('Sci-Fi');
 
--- 3. книги
+-- 2. книги
 INSERT INTO books (title, author, genre_id)
 SELECT 
     'Book Title №' || i,
@@ -49,14 +50,14 @@ SELECT
     (SELECT genre_id FROM genres ORDER BY RANDOM() LIMIT 1)
 FROM generate_series(1, 2000) AS i;
 
--- 4. клієнти 10 тис.
+-- 3. клієнти 10 тис.
 INSERT INTO clients (client_name, email)
 SELECT 
     'Library Reader ' || i,
     'reader_' || i || '@kse.ua'
 FROM generate_series(1, 10000) AS i;
 
--- 5. пропуски
+-- 4. пропуски
 INSERT INTO library_passes (client_id, issue_date, status)
 SELECT 
     client_id,
@@ -64,7 +65,7 @@ SELECT
     CASE WHEN RANDOM() > 0.15 THEN 'Active' ELSE 'Expired' END
 FROM clients;
 
--- 6. журнал видачі
+-- 5. журнал видачі
 INSERT INTO loan_jornal (pass_id, book_id, loan_date, return_date)
 SELECT 
     (1 + FLOOR(RANDOM() * 10000)),
@@ -76,6 +77,10 @@ FROM generate_series(1, 15000) AS i;
 
 
 --запит на вивід топ 100 популярних книжок
+--через cte
+--сортування where бере результати за 2026 рік
+--limit : перші 100 книг
+
 with top_popular_books_cte as (
 	select 
 		b.title,
